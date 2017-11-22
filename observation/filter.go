@@ -12,3 +12,19 @@ type DimensionFilter struct {
 	Name    string   `json:"name,omitempty"`
 	Options []string `json:"options,omitempty"`
 }
+
+// IsEmpty return true if DimensionFilters is nil, empty or contains only empty values
+func (f Filter) IsEmpty() bool {
+	if len(f.DimensionFilters) == 0 {
+		return true
+	}
+
+	for _, o := range f.DimensionFilters {
+		if o.Name != "" && len(o.Options) > 0 {
+			// return at the first non empty option
+			return false
+		}
+	}
+
+	return true
+}

@@ -3,6 +3,7 @@ package observation
 import (
 	"bytes"
 	"fmt"
+	"github.com/ONSdigital/go-ns/log"
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	"strconv"
 )
@@ -31,15 +32,19 @@ func NewStore(dBConnection DBConnection) *Store {
 func (store *Store) GetCSVRows(filter *Filter, limit *int) (CSVRowReader, error) {
 
 	headerRowQuery := fmt.Sprintf("MATCH (i:`_%s_Instance`) RETURN i.header as row", filter.InstanceID)
-	rowsQuery := createObservationQuery(filter)
 
-	unionQuery := headerRowQuery + " UNION ALL " + rowsQuery
+	unionQuery := headerRowQuery + " UNION ALL " + createObservationQuery(filter)
 
 	if limit != nil {
 		limitAsString := strconv.Itoa(*limit)
 		unionQuery += " LIMIT " + limitAsString
 	}
 
+	log.Info("neo4j query", log.Data{
+		"filterID":   filter.FilterID,
+		"instanceID": filter.InstanceID,
+		"query":      unionQuery,
+	})
 	rows, err := store.dBConnection.QueryNeo(unionQuery, nil)
 	if err != nil {
 		return nil, err
@@ -49,6 +54,14 @@ func (store *Store) GetCSVRows(filter *Filter, limit *int) (CSVRowReader, error)
 }
 
 func createObservationQuery(filter *Filter) string {
+	if filter.IsEmpty() {
+		// if no dimension filter are specified than match all observations
+		log.Info("no dimension filters supplied, generating entire dataset query", log.Data{
+			"filterID":   filter.FilterID,
+			"instanceID": filter.InstanceID,
+		})
+		return fmt.Sprintf("MATCH(o: `_%s_observation`) return o.value as row", filter.InstanceID)
+	}
 
 	matchDimensions := "MATCH "
 	where := " WHERE "
