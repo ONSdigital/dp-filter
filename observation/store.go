@@ -28,7 +28,8 @@ func NewStore(dBConnection DBConnection) *Store {
 }
 
 // GetCSVRows returns a reader allowing individual CSV rows to be read. Rows returned
-// can be limited, to stop this pass in nil.
+// can be limited, to stop this pass in nil. If filter.DimensionFilters is nil, empty or contains only empty values then
+// a CSVRowReader for the entire dataset will be returned.
 func (store *Store) GetCSVRows(filter *Filter, limit *int) (CSVRowReader, error) {
 
 	headerRowQuery := fmt.Sprintf("MATCH (i:`_%s_Instance`) RETURN i.header as row", filter.InstanceID)

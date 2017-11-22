@@ -5,7 +5,6 @@ import (
 	"github.com/ONSdigital/dp-filter/observation"
 	"github.com/ONSdigital/dp-filter/observation/observationtest"
 	"github.com/johnnadratowski/golang-neo4j-bolt-driver"
-	"github.com/satori/go.uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -90,8 +89,8 @@ func TestStore_GetCSVRows(t *testing.T) {
 }
 
 func TestStore_GetCSVRowsEmptyFilter(t *testing.T) {
-	filterID := uuid.NewV4().String()
-	InstanceID := uuid.NewV4().String()
+	filterID := "1234567890"
+	InstanceID := "0987654321"
 
 	expectedQuery := fmt.Sprintf("MATCH (i:`_%s_Instance`) RETURN i.header as row UNION ALL "+
 		"MATCH(o: `_%s_observation`) return o.value as row", InstanceID, InstanceID)

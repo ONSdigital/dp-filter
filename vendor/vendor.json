@@ -3,6 +3,18 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "AjbjbhFVAOP/1NU5HL+uy+X/yJo=",
+			"path": "github.com/ONSdigital/go-ns/log",
+			"revision": "cf38837484cb627b256211362a52314b9a2a6f68",
+			"revisionTime": "2017-11-20T13:18:43Z"
+		},
+		{
+			"checksumSHA1": "yIkYzW7bzAD81zHyuCNmEj4+oxQ=",
+			"path": "github.com/gopherjs/gopherjs/js",
+			"revision": "415225646bb92c4449bb484646f2c95a98402f6f",
+			"revisionTime": "2017-09-27T19:27:36Z"
+		},
+		{
 			"checksumSHA1": "Yhqt+KEAQh76YoXCEUdKhaSKiHU=",
 			"path": "github.com/johnnadratowski/golang-neo4j-bolt-driver",
 			"revision": "71e91ab13c76965bf2b1394a89a6787c7dd91bdf",
@@ -49,6 +61,13 @@
 			"path": "github.com/jtolds/gls",
 			"revision": "77f18212c9c7edc9bd6a33d383a7b545ce62f064",
 			"revisionTime": "2017-05-03T22:40:06Z"
+		},
+		{
+			"checksumSHA1": "hBgLmZ/4mCxmnH88mqFKBkpJFUY=",
+			"origin": "github.com/ONSdigital/go-ns/vendor/github.com/mgutz/ansi",
+			"path": "github.com/mgutz/ansi",
+			"revision": "cf38837484cb627b256211362a52314b9a2a6f68",
+			"revisionTime": "2017-11-20T13:18:43Z"
 		},
 		{
 			"checksumSHA1": "AikWjAOvWHSJ8G1iU+wNReZnyCk=",
