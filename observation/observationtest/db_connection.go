@@ -4,12 +4,11 @@
 package observationtest
 
 import (
-	"github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	"sync"
 )
 
 var (
-	lockDBConnectionMockQueryNeo sync.RWMutex
+	lockDBConnectionMockClose sync.RWMutex
 )
 
 // DBConnectionMock is a mock implementation of DBConnection.
@@ -18,8 +17,8 @@ var (
 //
 //         // make and configure a mocked DBConnection
 //         mockedDBConnection := &DBConnectionMock{
-//             QueryNeoFunc: func(query string, params map[string]interface{}) (golangNeo4jBoltDriver.Rows, error) {
-// 	               panic("TODO: mock out the QueryNeo method")
+//             CloseFunc: func() error {
+// 	               panic("TODO: mock out the Close method")
 //             },
 //         }
 //
@@ -28,52 +27,39 @@ var (
 //
 //     }
 type DBConnectionMock struct {
-	// QueryNeoFunc mocks the QueryNeo method.
-	QueryNeoFunc func(query string, params map[string]interface{}) (golangNeo4jBoltDriver.Rows, error)
+	// CloseFunc mocks the Close method.
+	CloseFunc func() error
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// QueryNeo holds details about calls to the QueryNeo method.
-		QueryNeo []struct {
-			// Query is the query argument value.
-			Query string
-			// Params is the params argument value.
-			Params map[string]interface{}
+		// Close holds details about calls to the Close method.
+		Close []struct {
 		}
 	}
 }
 
-// QueryNeo calls QueryNeoFunc.
-func (mock *DBConnectionMock) QueryNeo(query string, params map[string]interface{}) (golangNeo4jBoltDriver.Rows, error) {
-	if mock.QueryNeoFunc == nil {
-		panic("moq: DBConnectionMock.QueryNeoFunc is nil but DBConnection.QueryNeo was just called")
+// Close calls CloseFunc.
+func (mock *DBConnectionMock) Close() error {
+	if mock.CloseFunc == nil {
+		panic("moq: DBConnectionMock.CloseFunc is nil but DBConnection.Close was just called")
 	}
 	callInfo := struct {
-		Query  string
-		Params map[string]interface{}
-	}{
-		Query:  query,
-		Params: params,
-	}
-	lockDBConnectionMockQueryNeo.Lock()
-	mock.calls.QueryNeo = append(mock.calls.QueryNeo, callInfo)
-	lockDBConnectionMockQueryNeo.Unlock()
-	return mock.QueryNeoFunc(query, params)
+	}{}
+	lockDBConnectionMockClose.Lock()
+	mock.calls.Close = append(mock.calls.Close, callInfo)
+	lockDBConnectionMockClose.Unlock()
+	return mock.CloseFunc()
 }
 
-// QueryNeoCalls gets all the calls that were made to QueryNeo.
+// CloseCalls gets all the calls that were made to Close.
 // Check the length with:
-//     len(mockedDBConnection.QueryNeoCalls())
-func (mock *DBConnectionMock) QueryNeoCalls() []struct {
-	Query  string
-	Params map[string]interface{}
+//     len(mockedDBConnection.CloseCalls())
+func (mock *DBConnectionMock) CloseCalls() []struct {
 } {
 	var calls []struct {
-		Query  string
-		Params map[string]interface{}
 	}
-	lockDBConnectionMockQueryNeo.RLock()
-	calls = mock.calls.QueryNeo
-	lockDBConnectionMockQueryNeo.RUnlock()
+	lockDBConnectionMockClose.RLock()
+	calls = mock.calls.Close
+	lockDBConnectionMockClose.RUnlock()
 	return calls
 }

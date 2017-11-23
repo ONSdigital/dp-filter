@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/ONSdigital/dp-filter/observation"
 	"github.com/ONSdigital/dp-filter/observation/observationtest"
-	"github.com/johnnadratowski/golang-neo4j-bolt-driver"
+	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -41,13 +41,19 @@ func TestStore_GetCSVRows(t *testing.T) {
 			},
 		}
 
-		mockedDBConnection := &observationtest.DBConnectionMock{
-			QueryNeoFunc: func(query string, params map[string]interface{}) (golangNeo4jBoltDriver.Rows, error) {
+		mockedDBConnection := &observationtest.ConnMock{
+			QueryNeoFunc: func(query string, params map[string]interface{}) (bolt.Rows, error) {
 				return mockBoltRows, nil
 			},
 		}
 
-		store := observation.NewStore(mockedDBConnection)
+		mockedPool := &observationtest.DBPoolMock{
+			OpenPoolFunc: func() (bolt.Conn, error) {
+				return mockedDBConnection, nil
+			},
+		}
+
+		store := observation.NewStore(mockedPool)
 
 		Convey("When GetCSVRows is called with out a limit", func() {
 
@@ -108,13 +114,19 @@ func TestStore_GetCSVRowsEmptyFilter(t *testing.T) {
 			},
 		}
 
-		mockedDBConnection := &observationtest.DBConnectionMock{
-			QueryNeoFunc: func(query string, params map[string]interface{}) (golangNeo4jBoltDriver.Rows, error) {
+		mockedDBConnection := &observationtest.ConnMock{
+			QueryNeoFunc: func(query string, params map[string]interface{}) (bolt.Rows, error) {
 				return mockBoltRows, nil
 			},
 		}
 
-		store := observation.NewStore(mockedDBConnection)
+		mockedPool := &observationtest.DBPoolMock{
+			OpenPoolFunc: func() (bolt.Conn, error) {
+				return mockedDBConnection, nil
+			},
+		}
+
+		store := observation.NewStore(mockedPool)
 
 		Convey("When GetCSVRows is called a filter with nil dimensionFilters and no limit", func() {
 			filter := &observation.Filter{
@@ -167,7 +179,7 @@ func assertEmptyFilterResults(reader observation.CSVRowReader, expectedCSVRow st
 	})
 }
 
-func assertEmptyFilterQueryInvocations(connection *observationtest.DBConnectionMock, expectedQuery string) {
+func assertEmptyFilterQueryInvocations(connection *observationtest.ConnMock, expectedQuery string) {
 	Convey("Then the expected query is sent to the database one time", func() {
 		So(len(connection.QueryNeoCalls()), ShouldEqual, 1)
 		So(connection.QueryNeoCalls()[0].Query, ShouldEqual, expectedQuery)

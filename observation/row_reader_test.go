@@ -23,7 +23,13 @@ func TestBoltRowReader_Read(t *testing.T) {
 			},
 		}
 
-		rowReader := observation.NewBoltRowReader(mockBoltRows)
+		mockConnection := &observationtest.DBConnectionMock{
+			CloseFunc: func() error {
+				return nil
+			},
+		}
+
+		rowReader := observation.NewBoltRowReader(mockBoltRows, mockConnection)
 
 		Convey("When read is called", func() {
 
@@ -50,7 +56,13 @@ func TestBoltRowReader_ReadError(t *testing.T) {
 			},
 		}
 
-		rowReader := observation.NewBoltRowReader(mockBoltRows)
+		mockConnection := &observationtest.DBConnectionMock{
+			CloseFunc: func() error {
+				return nil
+			},
+		}
+
+		rowReader := observation.NewBoltRowReader(mockBoltRows, mockConnection)
 
 		Convey("When read is called", func() {
 
@@ -78,7 +90,13 @@ func TestBoltRowReader_Read_NoDataError(t *testing.T) {
 			},
 		}
 
-		rowReader := observation.NewBoltRowReader(mockBoltRows)
+		mockConnection := &observationtest.DBConnectionMock{
+			CloseFunc: func() error {
+				return nil
+			},
+		}
+
+		rowReader := observation.NewBoltRowReader(mockBoltRows, mockConnection)
 
 		Convey("When read is called", func() {
 
@@ -106,7 +124,13 @@ func TestBoltRowReader_Read_TypeError(t *testing.T) {
 			},
 		}
 
-		rowReader := observation.NewBoltRowReader(mockBoltRows)
+		mockConnection := &observationtest.DBConnectionMock{
+			CloseFunc: func() error {
+				return nil
+			},
+		}
+
+		rowReader := observation.NewBoltRowReader(mockBoltRows, mockConnection)
 
 		Convey("When read is called", func() {
 
@@ -117,6 +141,33 @@ func TestBoltRowReader_Read_TypeError(t *testing.T) {
 				So(err, ShouldEqual, observation.ErrUnrecognisedType)
 				So(row, ShouldEqual, "")
 			})
+		})
+	})
+}
+
+func TestBoltRowReader_BoltConnection_Closed(t *testing.T) {
+	Convey("Given a row reader with a mock Bolt reader.", t, func() {
+		mockBoltRows := &observationtest.BoltRowsMock{
+			CloseFunc: func() error {
+				return nil
+			},
+			NextNeoFunc: func() ([]interface{}, map[string]interface{}, error) {
+				return []interface{}{666}, nil, nil
+			},
+		}
+
+		mockConnection := &observationtest.DBConnectionMock{
+			CloseFunc: func() error {
+				return nil
+			},
+		}
+
+		rowReader := observation.NewBoltRowReader(mockBoltRows, mockConnection)
+
+		Convey("When the row reader is closed the Bolt connection is released.", func() {
+           err := rowReader.Close()
+           So(err, ShouldBeNil)
+           So(len(mockConnection.CloseCalls()), ShouldEqual, 1)
 		})
 	})
 }

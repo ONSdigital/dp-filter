@@ -8,22 +8,22 @@ import (
 	"strconv"
 )
 
-//go:generate moq -out observationtest/db_connection.go -pkg observationtest . DBConnection
+//go:generate moq -out observationtest/db_pool.go -pkg observationtest . DBPool
 
 // Store represents storage for observation data.
 type Store struct {
-	dBConnection DBConnection
+	pool DBPool
 }
 
-// DBConnection provides a connection to the database.
-type DBConnection interface {
-	QueryNeo(query string, params map[string]interface{}) (bolt.Rows, error)
+// DBPool provides a pool of database connections
+type DBPool interface {
+	OpenPool() (bolt.Conn, error)
 }
 
 // NewStore returns a new store instace using the given DB connection.
-func NewStore(dBConnection DBConnection) *Store {
+func NewStore(pool DBPool) *Store {
 	return &Store{
-		dBConnection: dBConnection,
+		pool: pool,
 	}
 }
 
@@ -46,12 +46,18 @@ func (store *Store) GetCSVRows(filter *Filter, limit *int) (CSVRowReader, error)
 		"instanceID": filter.InstanceID,
 		"query":      unionQuery,
 	})
-	rows, err := store.dBConnection.QueryNeo(unionQuery, nil)
+	conn, err := store.pool.OpenPool()
 	if err != nil {
 		return nil, err
 	}
 
-	return NewBoltRowReader(rows), nil
+	rows, err := conn.QueryNeo(unionQuery, nil)
+	if err != nil {
+		return nil, err
+	}
+	// The connection can only be closed once the results have been read, so the row reader is responsible for
+	// releasing the connection back into the pool
+	return NewBoltRowReader(rows, conn), nil
 }
 
 func createObservationQuery(filter *Filter) string {
