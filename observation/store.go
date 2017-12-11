@@ -53,7 +53,7 @@ func (store *Store) GetCSVRows(filter *Filter, limit *int) (CSVRowReader, error)
 
 	rows, err := conn.QueryNeo(unionQuery, nil)
 	if err != nil {
-		// Before returning the error close the open connection to release it back into the pool
+		// Before returning the error "close" the open connection to release it back into the pool.
 		conn.Close()
 		return nil, err
 	}
