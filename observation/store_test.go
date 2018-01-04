@@ -208,7 +208,7 @@ func TestStore_GetCSVRowsDimensionEmpty(t *testing.T) {
 
 		store := observation.NewStore(mockedPool)
 
-		Convey("When GetCSVRows is called a with a filter with an empty dimension options and no limit", func() {
+		Convey("When GetCSVRows is called with a filter with an empty dimension options and no limit", func() {
 
 			expectedQuery := "MATCH (i:`_888_Instance`) RETURN i.header as row " +
 				"UNION ALL " +
