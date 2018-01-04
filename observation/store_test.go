@@ -55,7 +55,7 @@ func TestStore_GetCSVRows(t *testing.T) {
 
 		store := observation.NewStore(mockedPool)
 
-		Convey("When GetCSVRows is called with out a limit", func() {
+		Convey("When GetCSVRows is called without a limit", func() {
 
 			rowReader, err := store.GetCSVRows(filter, nil)
 
@@ -167,6 +167,71 @@ func TestStore_GetCSVRowsEmptyFilter(t *testing.T) {
 			result, err := store.GetCSVRows(filter, nil)
 			assertEmptyFilterResults(result, expectedCSVRow, err)
 			assertEmptyFilterQueryInvocations(mockedDBConnection, expectedQuery)
+		})
+	})
+}
+
+func TestStore_GetCSVRowsDimensionEmpty(t *testing.T) {
+
+	Convey("Given an store with a mock DB connection", t, func() {
+
+		filter := &observation.Filter{
+			InstanceID: "888",
+			DimensionFilters: []*observation.DimensionFilter{
+				{Name: "age", Options: []string{"29", "30"}},
+				{Name: "sex", Options: []string{}},
+			},
+		}
+
+		expectedCSVRow := "the,csv,row"
+
+		mockBoltRows := &observationtest.BoltRowsMock{
+			CloseFunc: func() error {
+				return nil
+			},
+			NextNeoFunc: func() ([]interface{}, map[string]interface{}, error) {
+				return []interface{}{expectedCSVRow}, nil, nil
+			},
+		}
+
+		mockedDBConnection := &observationtest.ConnMock{
+			QueryNeoFunc: func(query string, params map[string]interface{}) (bolt.Rows, error) {
+				return mockBoltRows, nil
+			},
+		}
+
+		mockedPool := &observationtest.DBPoolMock{
+			OpenPoolFunc: func() (bolt.Conn, error) {
+				return mockedDBConnection, nil
+			},
+		}
+
+		store := observation.NewStore(mockedPool)
+
+		Convey("When GetCSVRows is called a with a filter with an empty dimension options and no limit", func() {
+
+			expectedQuery := "MATCH (i:`_888_Instance`) RETURN i.header as row " +
+				"UNION ALL " +
+				"MATCH (age:`_888_age`) " +
+				"WHERE age.value IN ['29', '30'] " +
+				"WITH age " +
+				"MATCH (o:`_888_observation`)-[:isValueOf]->(age) " +
+				"RETURN o.value AS row"
+
+			rowReader, err := store.GetCSVRows(filter, nil)
+
+			Convey("Then the expected query is sent to the database", func() {
+
+				actualQuery := mockedDBConnection.QueryNeoCalls()[0].Query
+
+				So(len(mockedDBConnection.QueryNeoCalls()), ShouldEqual, 1)
+				So(actualQuery, ShouldEqual, expectedQuery)
+			})
+
+			Convey("There is a row reader returned for the rows given by the database.", func() {
+				So(err, ShouldBeNil)
+				So(rowReader, ShouldNotBeNil)
+			})
 		})
 	})
 }
