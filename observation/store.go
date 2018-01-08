@@ -3,9 +3,10 @@ package observation
 import (
 	"bytes"
 	"fmt"
+	"strconv"
+
 	"github.com/ONSdigital/go-ns/log"
 	bolt "github.com/ONSdigital/golang-neo4j-bolt-driver"
-	"strconv"
 )
 
 //go:generate moq -out observationtest/db_pool.go -pkg observationtest . DBPool

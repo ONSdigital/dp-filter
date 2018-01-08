@@ -103,14 +103,15 @@ func TestStore_GetCSVRowsEmptyFilter(t *testing.T) {
 
 	Convey("Given valid database connection", t, func() {
 
-		expectedCSVRow := "the,csv,row"
+		expectedCSVRowHeader := "the,csv,row"
+		expectedCSVRowData := "1,2,3"
 
 		mockBoltRows := &observationtest.BoltRowsMock{
 			CloseFunc: func() error {
 				return nil
 			},
 			NextNeoFunc: func() ([]interface{}, map[string]interface{}, error) {
-				return []interface{}{expectedCSVRow}, nil, nil
+				return []interface{}{expectedCSVRowHeader, expectedCSVRowData}, nil, nil
 			},
 		}
 
@@ -136,7 +137,7 @@ func TestStore_GetCSVRowsEmptyFilter(t *testing.T) {
 			}
 
 			result, err := store.GetCSVRows(filter, nil)
-			assertEmptyFilterResults(result, expectedCSVRow, err)
+			assertEmptyFilterResults(result, expectedCSVRowHeader, err)
 			assertEmptyFilterQueryInvocations(mockedDBConnection, expectedQuery)
 		})
 
@@ -148,7 +149,7 @@ func TestStore_GetCSVRowsEmptyFilter(t *testing.T) {
 			}
 
 			result, err := store.GetCSVRows(filter, nil)
-			assertEmptyFilterResults(result, expectedCSVRow, err)
+			assertEmptyFilterResults(result, expectedCSVRowHeader, err)
 			assertEmptyFilterQueryInvocations(mockedDBConnection, expectedQuery)
 		})
 
@@ -165,7 +166,7 @@ func TestStore_GetCSVRowsEmptyFilter(t *testing.T) {
 			}
 
 			result, err := store.GetCSVRows(filter, nil)
-			assertEmptyFilterResults(result, expectedCSVRow, err)
+			assertEmptyFilterResults(result, expectedCSVRowHeader, err)
 			assertEmptyFilterQueryInvocations(mockedDBConnection, expectedQuery)
 		})
 	})
