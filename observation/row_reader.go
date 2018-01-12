@@ -1,6 +1,8 @@
 package observation
 
 import (
+	"io"
+
 	bolt "github.com/ONSdigital/golang-neo4j-bolt-driver"
 	"github.com/ONSdigital/golang-neo4j-bolt-driver/errors"
 )
@@ -27,6 +29,7 @@ type DBConnection interface {
 type BoltRowReader struct {
 	rows       BoltRows
 	connection DBConnection
+	rowsRead   int
 }
 
 // NewBoltRowReader returns a new reader instace for the given bolt rows.
@@ -43,10 +46,23 @@ var ErrNoDataReturned = errors.New("no data returned in this row")
 // ErrUnrecognisedType is returned if a Neo4j row does not have the expected string value.
 var ErrUnrecognisedType = errors.New("the value returned was not a string")
 
+// ErrNoInstanceFound is returned if no instance exists in neo4j
+var ErrNoInstanceFound = errors.New("no instance found in datastore")
+
+// ErrNoResultsFound is returned if the selected filter options produce no results
+var ErrNoResultsFound = errors.New("the filter options created no results")
+
 // Read the next row, or return io.EOF
 func (reader *BoltRowReader) Read() (string, error) {
 	data, _, err := reader.rows.NextNeo()
 	if err != nil {
+		if err == io.EOF {
+			if reader.rowsRead == 0 {
+				return "", ErrNoInstanceFound
+			} else if reader.rowsRead == 1 {
+				return "", ErrNoResultsFound
+			}
+		}
 		return "", err
 	}
 
@@ -55,6 +71,7 @@ func (reader *BoltRowReader) Read() (string, error) {
 	}
 
 	if csvRow, ok := data[0].(string); ok {
+		reader.rowsRead++
 		return csvRow + "\n", nil
 	}
 

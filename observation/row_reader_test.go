@@ -1,11 +1,12 @@
 package observation_test
 
 import (
+	"io"
+	"testing"
+
 	"github.com/ONSdigital/dp-filter/observation"
 	"github.com/ONSdigital/dp-filter/observation/observationtest"
 	. "github.com/smartystreets/goconvey/convey"
-	"io"
-	"testing"
 )
 
 func TestBoltRowReader_Read(t *testing.T) {
@@ -19,7 +20,7 @@ func TestBoltRowReader_Read(t *testing.T) {
 				return nil
 			},
 			NextNeoFunc: func() ([]interface{}, map[string]interface{}, error) {
-				return []interface{}{expectedCSVRow}, nil, nil
+				return []interface{}{expectedCSVRow, "1,2,3"}, nil, nil
 			},
 		}
 
@@ -70,7 +71,7 @@ func TestBoltRowReader_ReadError(t *testing.T) {
 
 			Convey("The error from the Bolt reader is returned", func() {
 				So(err, ShouldNotBeNil)
-				So(err, ShouldEqual, io.EOF)
+				So(err, ShouldEqual, observation.ErrNoInstanceFound)
 				So(row, ShouldEqual, "")
 			})
 		})
@@ -120,7 +121,7 @@ func TestBoltRowReader_Read_TypeError(t *testing.T) {
 				return nil
 			},
 			NextNeoFunc: func() ([]interface{}, map[string]interface{}, error) {
-				return []interface{}{666}, nil, nil
+				return []interface{}{666, 666}, nil, nil
 			},
 		}
 
@@ -165,9 +166,9 @@ func TestBoltRowReader_BoltConnection_Closed(t *testing.T) {
 		rowReader := observation.NewBoltRowReader(mockBoltRows, mockConnection)
 
 		Convey("When the row reader is closed the Bolt connection is released.", func() {
-           err := rowReader.Close()
-           So(err, ShouldBeNil)
-           So(len(mockConnection.CloseCalls()), ShouldEqual, 1)
+			err := rowReader.Close()
+			So(err, ShouldBeNil)
+			So(len(mockConnection.CloseCalls()), ShouldEqual, 1)
 		})
 	})
 }
