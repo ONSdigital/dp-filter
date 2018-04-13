@@ -1,14 +1,16 @@
 package observation
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var filter = Filter{
 	InstanceID:       "1234567890",
 	FilterID:         "0987654321",
 	DimensionFilters: nil,
+	Published:        &Published,
 }
 
 func TestFilter_IsEmpty(t *testing.T) {
