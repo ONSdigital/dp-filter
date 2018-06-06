@@ -5,9 +5,9 @@ import (
 	"encoding/binary"
 	"io"
 
-	"github.com/ONSdigital/golang-neo4j-bolt-driver/errors"
-	"github.com/ONSdigital/golang-neo4j-bolt-driver/structures/graph"
-	"github.com/ONSdigital/golang-neo4j-bolt-driver/structures/messages"
+	"github.com/johnnadratowski/golang-neo4j-bolt-driver/errors"
+	"github.com/johnnadratowski/golang-neo4j-bolt-driver/structures/graph"
+	"github.com/johnnadratowski/golang-neo4j-bolt-driver/structures/messages"
 )
 
 // Decoder decodes a message from the bolt protocol stream
@@ -41,7 +41,7 @@ func (d Decoder) read() (*bytes.Buffer, error) {
 	output := &bytes.Buffer{}
 	for {
 		lengthBytes := make([]byte, 2)
-		if numRead, err := d.r.Read(lengthBytes); numRead != 2 {
+		if numRead, err := io.ReadFull(d.r, lengthBytes); numRead != 2 {
 			return nil, errors.Wrap(err, "Couldn't read expected bytes for message length. Read: %d Expected: 2.", numRead)
 		}
 

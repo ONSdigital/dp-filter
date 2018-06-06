@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/ONSdigital/dp-filter/observation"
 	"github.com/ONSdigital/dp-filter/observation/observationtest"
-	bolt "github.com/ONSdigital/golang-neo4j-bolt-driver"
+	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
