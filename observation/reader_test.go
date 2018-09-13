@@ -1,12 +1,13 @@
 package observation_test
 
 import (
-	"github.com/ONSdigital/dp-filter/observation"
-	"github.com/ONSdigital/dp-filter/observation/observationtest"
-	. "github.com/smartystreets/goconvey/convey"
 	"io"
 	"reflect"
 	"testing"
+
+	"github.com/ONSdigital/dp-filter/observation"
+	"github.com/ONSdigital/dp-filter/observation/observationtest"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestReader_Read(t *testing.T) {
@@ -134,6 +135,7 @@ func TestReader_Read_MultipleLines(t *testing.T) {
 				So(reflect.DeepEqual(expected, read3[:expectedLen]), ShouldBeTrue)
 
 				So(reader.TotalBytesRead(), ShouldEqual, expectedLen*3) // should have read the row content 3 times
+				So(reader.ObservationsCount(), ShouldEqual, 3)
 			})
 		})
 	})
