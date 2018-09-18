@@ -78,10 +78,11 @@ func createObservationQuery(filter *Filter) string {
 	with := " WITH "
 	match := " MATCH "
 
-	for index, dimension := range filter.DimensionFilters {
+	count := 0
+	for _, dimension := range filter.DimensionFilters {
 		// If the dimension options is empty then don't bother specifying in the query as this will exclude all matches.
 		if len(dimension.Options) > 0 {
-			if index != 0 {
+			if count > 0 {
 				matchDimensions += ", "
 				where += " AND "
 				with += ", "
@@ -93,6 +94,7 @@ func createObservationQuery(filter *Filter) string {
 			where += fmt.Sprintf("%s.value IN [%s]", dimension.Name, optionList)
 			with += dimension.Name
 			match += fmt.Sprintf("(o:`_%s_observation`)-[:isValueOf]->(%s)", filter.InstanceID, dimension.Name)
+			count++
 		}
 	}
 
