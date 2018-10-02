@@ -75,8 +75,6 @@ func createObservationQuery(filter *Filter) string {
 
 	matchDimensions := "MATCH "
 	where := " WHERE "
-	with := " WITH "
-	match := " MATCH "
 
 	count := 0
 	for _, dimension := range filter.DimensionFilters {
@@ -85,34 +83,30 @@ func createObservationQuery(filter *Filter) string {
 			if count > 0 {
 				matchDimensions += ", "
 				where += " AND "
-				with += ", "
-				match += ", "
 			}
 
-			optionList := createOptionList(dimension.Options)
-			matchDimensions += fmt.Sprintf("(%s:`_%s_%s`)", dimension.Name, filter.InstanceID, dimension.Name)
-			where += fmt.Sprintf("%s.value IN [%s]", dimension.Name, optionList)
-			with += dimension.Name
-			match += fmt.Sprintf("(o:`_%s_observation`)-[:isValueOf]->(%s)", filter.InstanceID, dimension.Name)
+			matchDimensions += fmt.Sprintf("(o)-[:isValueOf]->(%s:`_%s_%s`)", dimension.Name, filter.InstanceID, dimension.Name)
+			where += createOptionList(dimension.Name, dimension.Options)
 			count++
 		}
 	}
 
-	return matchDimensions + where + with + match + " RETURN o.value AS row"
+	return matchDimensions + where + " RETURN o.value AS row"
 }
 
-func createOptionList(options []string) string {
-
+func createOptionList(name string, opts []string) string {
 	var buffer bytes.Buffer
 
-	for index, option := range options {
+	buffer.WriteString("(")
+	l := len(opts) - 1
+	for i, o := range opts {
+		buffer.WriteString(fmt.Sprintf("%s.value='%s'", name, o))
 
-		if index != 0 {
-			buffer.WriteString(", ")
+		if i < l {
+			buffer.WriteString(" OR ")
 		}
-
-		buffer.WriteString(fmt.Sprintf("'%s'", option))
 	}
+	buffer.WriteString(")")
 
 	return buffer.String()
 }

@@ -2,11 +2,12 @@ package observation_test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/ONSdigital/dp-filter/observation"
 	"github.com/ONSdigital/dp-filter/observation/observationtest"
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 	. "github.com/smartystreets/goconvey/convey"
-	"testing"
 )
 
 func TestStore_GetCSVRows(t *testing.T) {
@@ -23,11 +24,9 @@ func TestStore_GetCSVRows(t *testing.T) {
 
 		expectedQuery := "MATCH (i:`_888_Instance`) RETURN i.header as row " +
 			"UNION ALL " +
-			"MATCH (age:`_888_age`), (sex:`_888_sex`) " +
-			"WHERE age.value IN ['29', '30'] " +
-			"AND sex.value IN ['male', 'female'] " +
-			"WITH age, sex " +
-			"MATCH (o:`_888_observation`)-[:isValueOf]->(age), (o:`_888_observation`)-[:isValueOf]->(sex) " +
+			"MATCH (o)-[:isValueOf]->(age:`_888_age`), (o)-[:isValueOf]->(sex:`_888_sex`) " +
+			"WHERE (age.value='29' OR age.value='30') " +
+			"AND (sex.value='male' OR sex.value='female') " +
 			"RETURN o.value AS row"
 
 		expectedCSVRow := "the,csv,row"
@@ -213,10 +212,8 @@ func TestStore_GetCSVRowsDimensionEmpty(t *testing.T) {
 
 			expectedQuery := "MATCH (i:`_888_Instance`) RETURN i.header as row " +
 				"UNION ALL " +
-				"MATCH (age:`_888_age`) " +
-				"WHERE age.value IN ['29', '30'] " +
-				"WITH age " +
-				"MATCH (o:`_888_observation`)-[:isValueOf]->(age) " +
+				"MATCH (o)-[:isValueOf]->(age:`_888_age`) " +
+				"WHERE (age.value='29' OR age.value='30') " +
 				"RETURN o.value AS row"
 
 			rowReader, err := store.GetCSVRows(filter, nil)
