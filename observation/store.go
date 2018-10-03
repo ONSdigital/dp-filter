@@ -1,9 +1,9 @@
 package observation
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/ONSdigital/go-ns/log"
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
@@ -95,18 +95,11 @@ func createObservationQuery(filter *Filter) string {
 }
 
 func createOptionList(name string, opts []string) string {
-	var buffer bytes.Buffer
+	var q []string
 
-	buffer.WriteString("(")
-	l := len(opts) - 1
-	for i, o := range opts {
-		buffer.WriteString(fmt.Sprintf("%s.value='%s'", name, o))
-
-		if i < l {
-			buffer.WriteString(" OR ")
-		}
+	for _, o := range opts {
+		q = append(q, fmt.Sprintf("%s.value='%s'", name, o))
 	}
-	buffer.WriteString(")")
 
-	return buffer.String()
+	return fmt.Sprintf("(%s)", strings.Join(q, " OR "))
 }
