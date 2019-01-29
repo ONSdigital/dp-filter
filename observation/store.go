@@ -85,7 +85,7 @@ func createObservationQuery(filter *Filter) string {
 				where += " AND "
 			}
 
-			matchDimensions += fmt.Sprintf("(o)-[:isValueOf]->(%s:`_%s_%s`)", dimension.Name, filter.InstanceID, dimension.Name)
+			matchDimensions += fmt.Sprintf("(o)-[:isValueOf]->(`%s`:`_%s_%s`)", dimension.Name, filter.InstanceID, dimension.Name)
 			where += createOptionList(dimension.Name, dimension.Options)
 			count++
 		}
@@ -98,7 +98,7 @@ func createOptionList(name string, opts []string) string {
 	var q []string
 
 	for _, o := range opts {
-		q = append(q, fmt.Sprintf("%s.value='%s'", name, o))
+		q = append(q, fmt.Sprintf("`%s`.value='%s'", name, o))
 	}
 
 	return fmt.Sprintf("(%s)", strings.Join(q, " OR "))
