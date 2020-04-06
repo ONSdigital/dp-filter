@@ -1,11 +1,12 @@
 package observation
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/ONSdigital/go-ns/log"
+	"github.com/ONSdigital/log.go/log"
 	bolt "github.com/johnnadratowski/golang-neo4j-bolt-driver"
 )
 
@@ -31,18 +32,18 @@ func NewStore(pool DBPool) *Store {
 // GetCSVRows returns a reader allowing individual CSV rows to be read. Rows returned
 // can be limited, to stop this pass in nil. If filter.DimensionFilters is nil, empty or contains only empty values then
 // a CSVRowReader for the entire dataset will be returned.
-func (store *Store) GetCSVRows(filter *Filter, limit *int) (CSVRowReader, error) {
+func (store *Store) GetCSVRows(ctx context.Context, filter *Filter, limit *int) (CSVRowReader, error) {
 
 	headerRowQuery := fmt.Sprintf("MATCH (i:`_%s_Instance`) RETURN i.header as row", filter.InstanceID)
 
-	unionQuery := headerRowQuery + " UNION ALL " + createObservationQuery(filter)
+	unionQuery := headerRowQuery + " UNION ALL " + createObservationQuery(ctx, filter)
 
 	if limit != nil {
 		limitAsString := strconv.Itoa(*limit)
 		unionQuery += " LIMIT " + limitAsString
 	}
 
-	log.Info("neo4j query", log.Data{
+	log.Event(ctx, "neo4j query", log.INFO, log.Data{
 		"filterID":   filter.FilterID,
 		"instanceID": filter.InstanceID,
 		"query":      unionQuery,
@@ -63,10 +64,10 @@ func (store *Store) GetCSVRows(filter *Filter, limit *int) (CSVRowReader, error)
 	return NewBoltRowReader(rows, conn), nil
 }
 
-func createObservationQuery(filter *Filter) string {
+func createObservationQuery(ctx context.Context, filter *Filter) string {
 	if filter.IsEmpty() {
 		// if no dimension filter are specified than match all observations
-		log.Info("no dimension filters supplied, generating entire dataset query", log.Data{
+		log.Event(ctx, "no dimension filters supplied, generating entire dataset query", log.INFO, log.Data{
 			"filterID":   filter.FilterID,
 			"instanceID": filter.InstanceID,
 		})
