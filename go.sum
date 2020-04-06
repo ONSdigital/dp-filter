@@ -8,8 +8,8 @@ github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 h1:EGx4pi6eqNxGa
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/hokaccha/go-prettyjson v0.0.0-20190818114111-108c894c2c0e h1:0aewS5NTyxftZHSnFaJmWE5oCCrj4DyEXkAiMa1iZJM=
 github.com/hokaccha/go-prettyjson v0.0.0-20190818114111-108c894c2c0e/go.mod h1:pFlLw2CfqZiIBOx6BuCeRLCrfxBJipTY0nIOF/VbGcI=
-github.com/johnnadratowski/golang-neo4j-bolt-driver v0.0.0-20171218143611-1108d6e66ccf h1:MdIjqQxAkwca9be8XGc941HRNjnhFMuBhmsliaEYvQ0=
-github.com/johnnadratowski/golang-neo4j-bolt-driver v0.0.0-20171218143611-1108d6e66ccf/go.mod h1:xwUw3ZE1/D9drQgpluhRs4peTMKm1tQEZ4p7DrpyqwE=
+github.com/johnnadratowski/golang-neo4j-bolt-driver v0.0.0-20200323142034-807201386efa h1:wSh58UKA2FPr3+rEO/lNfdYdXjgp6pguauIGWa3mHf0=
+github.com/johnnadratowski/golang-neo4j-bolt-driver v0.0.0-20200323142034-807201386efa/go.mod h1:xwUw3ZE1/D9drQgpluhRs4peTMKm1tQEZ4p7DrpyqwE=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
 github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
 github.com/mattn/go-colorable v0.1.4/go.mod h1:U0ppj6V5qS13XJ6of8GYAs25YV2eR4EVcfRqFIhoBtE=
