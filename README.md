@@ -1,8 +1,10 @@
+**DEPRECATED**
+
+The functionality that exists in this library has been copied over to [dp-graph](https://github.com/ONSdigital/dp-graph#dp-graph).
+
 dp-filter
 ================
 A library used to query ONS datasets in Neo4j, specifically to get observations using dimension options as filters.
-
-The functionality that exists in this library has been copied over to [dp-graph](https://github.com/ONSdigital/dp-graph#dp-graph).
 
 ### Contributing
 
